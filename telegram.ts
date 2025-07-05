@@ -88,6 +88,7 @@ bot.on(message('text'), async (ctx) => {
                 
                 try {
                     const result = await chat(searchQuery);
+                    
                     const { content, citations } = result;
                     
                     if (content) {
