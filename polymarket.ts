@@ -8,6 +8,7 @@ interface PolymarketEvent {
   volume24hr: string;
   tags: {label: string}[];
   markets: {
+    conditionId: string;
     question: string;
     closed: boolean;
     umaResolutionStatus: string;
@@ -25,7 +26,6 @@ export function getSlugFromUrl(url:string) {
 
 
 export async function getEventInfo(url:string) {
-  console.log(`[Tool] Called getEventInfo with URL: ${url}`);
   const slug = getSlugFromUrl(url);
   if(!slug){
     return {error: "Could not extract slug from URL."}
@@ -41,7 +41,6 @@ export async function getEventInfo(url:string) {
     if(!eventData){
         return {error: "Event not found for this slug."}
     }
-    console.log(`[Tool] Successfully fetched event data for slug: ${slug}`);
     const simplifiedEvent = {
         event_group_title: eventData.title,
         description: eventData.description,
@@ -51,7 +50,6 @@ export async function getEventInfo(url:string) {
         volume_24hr: parseFloat(eventData.volume24hr),
         tags: eventData.tags?.map((tag: any) => tag.label) || [],
         sub_markets: eventData.markets.map((market: any) => {
-            
             // 解析 outcomes 和 prices
             let probabilities: Record<string, number> = {};
             try {
@@ -72,6 +70,7 @@ export async function getEventInfo(url:string) {
 
             return {
                 question: market.question,
+                conditionId: market.conditionId,
                 status: status,
                 resolution_date: market.endDateIso,
                 probabilities: probabilities,
@@ -82,7 +81,24 @@ export async function getEventInfo(url:string) {
 
     return simplifiedEvent
   } catch (error) {
-    console.error(`[Tool] Error fetching data:`, error);
     return {error: "An exception occurred while fetching event data."}
   }
 }
+
+export async function getTradesInfo(conditionId:string) {
+    if(!conditionId){
+        return {error: "Condition ID is required"}
+    }
+    const url = `https://data-api.polymarket.com/trades?market=${conditionId}&limit=10&offset=0&filterType=CASH&filterAmount=1000`
+    try {
+        const response = await fetch(url)
+        if(!response.ok) {
+            return {error: `API request failed with status ${response.status}`}
+        }
+        const trades = await response.json()
+        return trades   
+    } catch (error) {
+        return {error: "An exception occurred while fetching trades data."}
+    }
+}
+    

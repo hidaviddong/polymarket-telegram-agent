@@ -5,17 +5,15 @@ import { chat } from "./agent";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
-// 定义用户状态
 type UserState = 'idle' | 'waiting_for_link' | 'waiting_for_choice' | 'waiting_for_percentage' | 'completed';
 
-// 定义会话类型
 interface MySession {
     isActive: boolean;
     state: UserState;
     answers: {
         eventLink?: string;
         choice?: 'YES' | 'NO';
-        percentage?: number;
+        price?: number;
     };
 }
 
@@ -74,24 +72,24 @@ bot.on(message('text'), async (ctx) => {
             break;
             
         case 'waiting_for_percentage':
-            const percentage = parseFloat(ctx.message.text);
-            if (!isNaN(percentage) && percentage >= 0 && percentage <= 100) {
-                ctx.session.answers.percentage = percentage;
+            const price = parseFloat(ctx.message.text);
+            if (!isNaN(price) && price >= 0 && price <= 100) {
+                ctx.session.answers.price = price;
                 ctx.session.state = 'completed';
                 
                 // 显示所有答案
                 const {eventLink,choice} = ctx.session.answers;
 
                 const searchQuery = `
-                I bought a polymarket event at ${percentage}% for ${choice} on ${eventLink}
+                I bought a polymarket event at ${price}¢ for ${choice} on ${eventLink}
                 `
                 
                 try {
-                    const result = await chat(searchQuery);
+                    const result = await chat(searchQuery,(message)=> ctx.reply(message));
                     
                     const { content, citations } = result;
                     
-                    if (content) {
+                    if (content && content.trim()) {
                         ctx.reply(content);
                     } else {
                         ctx.reply("No result found, please try again");
