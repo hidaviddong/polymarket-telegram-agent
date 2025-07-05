@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run telegram.ts",
-    "start": "ENV=production bun run telegram.ts "
+    "start": "ENV=production bun run telegram.ts",
+    "pm2": "pm2 start telegram.ts --name \"polymarket-tg-bot\" --interpreter bun"
   },
   "devDependencies": {
     "@types/bun": "latest"
