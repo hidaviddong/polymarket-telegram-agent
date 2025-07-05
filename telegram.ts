@@ -4,6 +4,7 @@ import { session } from "telegraf";
 import { chat } from "./agent";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+const AUTHORIZED_USER_ID = process.env.AUTHORIZED_USER_ID;
 
 type UserState = 'idle' | 'waiting_for_link' | 'waiting_for_choice' | 'waiting_for_percentage' | 'completed';
 
@@ -32,6 +33,19 @@ bot.use(session({
         answers: {}
     })
 }));
+
+bot.use((ctx, next) => {
+    // ctx.from.id 是发送消息用户的 ID
+    // 我们把它转成字符串来和环境变量进行比较，确保类型一致
+    const senderId = String(ctx.from?.id);
+  
+    if (senderId === AUTHORIZED_USER_ID) {
+      return next();
+    } else {
+      console.log(`Unauthorized access denied for user ID: ${senderId}`);
+      return ctx.reply('抱歉，你无权使用此机器人。');
+    }
+  });
 
 bot.start((ctx) => {
     ctx.session.isActive = true;
@@ -122,6 +136,4 @@ bot.on(message('text'), async (ctx) => {
             break;
     }
 });
-bot.launch();
-
-
+bot.launch()
