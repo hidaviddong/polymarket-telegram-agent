@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run telegram.ts"
+    "dev": "bun run telegram.ts",
+    "start": "ENV=production bun run telegram.ts "
   },
   "devDependencies": {
     "@types/bun": "latest"

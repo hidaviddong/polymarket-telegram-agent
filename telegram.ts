@@ -136,4 +136,16 @@ bot.on(message('text'), async (ctx) => {
             break;
     }
 });
-bot.launch()
+
+if(process.env.ENV === 'production'){
+    console.log('Bot started in production mode');
+    bot.launch({
+        webhook: {
+            domain: process.env.WEBHOOK_DOMAIN!,
+            port: Number(process.env.WEBHOOK_PORT!),
+        }
+    })
+}else{
+    console.log('Bot started in development mode');
+    bot.launch()
+}
