@@ -3,6 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "start": "bun run telegram.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -12,6 +15,7 @@
   "dependencies": {
     "dayjs": "^1.11.13",
     "openai": "^5.8.2",
+    "telegraf": "^4.16.3",
     "zod": "^3.25.72"
   }
 }
